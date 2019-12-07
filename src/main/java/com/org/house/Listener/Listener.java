@@ -1,5 +1,8 @@
-package com.org.house.UI.Impl;
+package com.org.house.Listener;
 
+import com.org.house.UI.Impl.ComboBoxImpl;
+import com.org.house.UI.Impl.PanelImpl;
+import com.org.house.UI.Impl.TextFieldInpl;
 import com.org.house.dao.impl.CrudUserImpl;
 import com.org.house.model.User;
 import com.org.house.service.UserService;
@@ -78,6 +81,10 @@ public class Listener implements ActionListener {
                         showMessage(stringBuffer, "All users");
                         break;
                 }
+                break;
+            case "Exit":
+                System.exit(0);
+                break;
         }
     }
 }
