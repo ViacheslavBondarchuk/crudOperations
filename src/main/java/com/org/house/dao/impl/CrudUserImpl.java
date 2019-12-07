@@ -22,7 +22,7 @@ public class CrudUserImpl implements Crud<User> {
     @Override
     public void create(User user, final String table) {
         if (user != null && !table.equals("") && table != null) {
-            try (Connection connection = connectionFactory.getConnection(URL,USERNAME,PASSWORD)) {
+            try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
                 connectionFactory.getStatement(connection).execute(
                         String.format("insert into %s values(" + PATTERN_VALUES + ");"
                                 , table
@@ -39,16 +39,17 @@ public class CrudUserImpl implements Crud<User> {
 
     @Override
     public void update(User user, final String table, final String username) {
-        try (Connection connection = connectionFactory.getConnection(URL,USERNAME,PASSWORD)) {
+        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
             connectionFactory.getStatement(connection).execute(String.format(
-                    "update table %s" +
+                    "update %s" +
                             " set " +
-                            "id = %s" +
-                            "username = %s," +
-                            " password = %s," +
-                            "firstname = %s," +
-                            "lastname = %s" +
-                            "where username = %s", table
+                            "id = \'%s\'," +
+                            "username = \'%s\'," +
+                            " password = \'%s\'," +
+                            "firstname = \'%s\'," +
+                            "lastname = \'%s\'" +
+                            "where username = \'%s\'"
+                    , table
                     , user.getId()
                     , user.getUsername()
                     , user.getPassword()
@@ -62,9 +63,9 @@ public class CrudUserImpl implements Crud<User> {
 
     @Override
     public void delete(final String table, final String username) {
-        try (Connection connection = connectionFactory.getConnection(URL,USERNAME,PASSWORD)) {
+        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
             connectionFactory.getStatement(connection).execute(
-                    String.format("delete from table %s where username = %s", table, username));
+                    String.format("delete from %s where username = \'%s\'", table, username));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -73,15 +74,20 @@ public class CrudUserImpl implements Crud<User> {
 
     @Override
     public User read(String username, final String table) {
-        try (Connection connection = connectionFactory.getConnection(URL,USERNAME,PASSWORD)) {
-            ResultSet resultSet = connectionFactory.getStatement(
-                    connection).executeQuery(String.format("select * from %s where username = %s",
-                    table, username));
+        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
+            ResultSet resultSet = connection.prepareStatement(
+                    String.format(
+                            "select * from %s where username = \'%s\'", table, username),
+                    ResultSet.TYPE_SCROLL_SENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE)
+                    .executeQuery();
+            resultSet.first();
             return new User(Long.parseLong(resultSet.getString("id")),
                     resultSet.getString("username"),
                     resultSet.getString("password"),
                     resultSet.getString("firstname"),
                     resultSet.getString("lastname"));
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -90,10 +96,10 @@ public class CrudUserImpl implements Crud<User> {
 
     @Override
     public List<User> readAll(final String table) {
-        try (Connection connection = connectionFactory.getConnection(URL,USERNAME,PASSWORD)) {
+        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
             if (table != null && !table.equals("")) {
                 ResultSet resultSet = connectionFactory.getStatement(connection)
-                        .executeQuery(String.format("select * from %", table));
+                        .executeQuery(String.format("select * from %s", table));
                 if (resultSet != null) {
                     List<User> users = new ArrayList<>();
                     while (resultSet.next()) {

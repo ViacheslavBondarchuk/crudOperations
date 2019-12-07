@@ -66,7 +66,17 @@ public class User {
         this.lastName = lastName;
     }
 
-    public User() {
+    public User() {}
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                '}';
     }
 
     public class Builder {
@@ -75,12 +85,12 @@ public class User {
 
         public Builder setId(long id) {
             User.this.id = id;
-            return Builder.this;
+            return this;
         }
 
         public Builder setUsername(String username) {
             User.this.username = username;
-            return Builder.this;
+            return this;
         }
 
         public Builder setPassword(String password) {

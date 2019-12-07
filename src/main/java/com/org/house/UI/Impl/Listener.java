@@ -4,6 +4,7 @@ import com.org.house.dao.impl.CrudUserImpl;
 import com.org.house.model.User;
 import com.org.house.service.UserService;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -16,6 +17,7 @@ public class Listener implements ActionListener {
     private UserService userService = new UserService(new CrudUserImpl());
     private ComboBoxImpl comboBox = ComboBoxImpl.getInstance();
     private TextFieldInpl dataField = PanelImpl.getDataField();
+    private TextFieldInpl usernameField = PanelImpl.getUsernameField();
     private final String TABLE = "users";
     private static Listener listener;
 
@@ -26,7 +28,7 @@ public class Listener implements ActionListener {
         return listener;
     }
 
-    private User createUser(final String[] data){
+    private User createUser(final String[] data) {
         return User.builder()
                 .setId(Integer.parseInt(data[0]))
                 .setUsername(data[1])
@@ -36,26 +38,44 @@ public class Listener implements ActionListener {
                 .build();
     }
 
+    private void showMessage(StringBuffer stringBuffer, String title) {
+        JOptionPane.showConfirmDialog(
+                null
+                , String.valueOf(stringBuffer)
+                , title, JOptionPane.DEFAULT_OPTION
+                , JOptionPane.INFORMATION_MESSAGE);
+        stringBuffer.delete(0, stringBuffer.length());
+    }
+
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         String[] data = dataField.getText().split(",");
+        StringBuffer stringBuffer = new StringBuffer();
         switch (actionEvent.getActionCommand()) {
             case "Execute":
                 switch (String.valueOf(comboBox.getSelectedItem())) {
                     case "create":
-                        userService.create(createUser(data),TABLE);
+                        userService.create(createUser(data), TABLE);
                         break;
                     case "read":
-                        System.out.println("read");
+                        stringBuffer.append(userService.getByUsername(usernameField.getText().trim(), TABLE));
+                        showMessage(stringBuffer, "Gotten user by username");
                         break;
                     case "update":
-                        System.out.println("update");
+                        userService.updateByUsername(createUser(data), TABLE, usernameField.getText().trim());
+                        stringBuffer.append(String.format("User by username: %s,  has been updated", usernameField.getText()));
+                        showMessage(stringBuffer, "Updated");
                         break;
                     case "delete":
-                        System.out.println("delete");
+                        userService.deleteByUsername(TABLE, usernameField.getText().trim());
+                        stringBuffer.append(String.format("User by username: %s,  has been deleted", usernameField.getText()));
+                        showMessage(stringBuffer, "Updated");
                         break;
                     case "readAll":
-                        System.out.println("readAll");
+                        userService.getAll(TABLE).forEach(user -> {
+                            stringBuffer.append(user.toString());
+                        });
+                        showMessage(stringBuffer, "All users");
                         break;
                 }
         }

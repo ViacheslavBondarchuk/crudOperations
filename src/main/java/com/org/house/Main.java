@@ -12,6 +12,6 @@ public class Main extends Launcher {
 
     @Override
     protected void run() throws Exception {
-        new WindowImpl("Crud operations", 400, 200).repaint(500);
+        new WindowImpl("Crud operations", 400, 300).repaint(500);
     }
 }
