@@ -1,5 +1,6 @@
 package com.org.house.dao.impl;
 
+import com.org.house.annotation.Transaction;
 import com.org.house.dao.Crud;
 import com.org.house.model.User;
 import com.org.house.utils.ConnectionFactory;
@@ -10,20 +11,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.org.house.dao.Crud.DataBaseConst.*;
+
 public class CrudUserImpl implements Crud<User> {
     private ConnectionFactory connectionFactory = ConnectionFactory.getInstance();
-    private final String URL = "jdbc:postgresql://localhost:5432/postgres";
-    private final String USERNAME = "postgres";
-    private final String PASSWORD = "postgres";
-    private final String PATTERN_VALUES = "\'%s\', \'%s\',\'%s\',\'%s\',\'%s\'";
-    private final String COLUMNS = "(\'id\', \'username\',\'password\',\'firstname\',\'lastname\')";
-
 
     @Override
+    @Transaction
     public void create(User user, final String table) {
         if (user != null && !table.equals("") && table != null) {
-            try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
-                connectionFactory.getStatement(connection).execute(
+            try {
+                Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD);
+                connectionFactory.getStatement(connection).executeUpdate(
                         String.format("insert into %s values(" + PATTERN_VALUES + ");"
                                 , table
                                 , user.getId()
@@ -38,9 +37,11 @@ public class CrudUserImpl implements Crud<User> {
     }
 
     @Override
+    @Transaction
     public void update(User user, final String table, final String username) {
-        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
-            connectionFactory.getStatement(connection).execute(String.format(
+        try {
+            Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD);
+            connectionFactory.getStatement(connection).executeUpdate(String.format(
                     "update %s" +
                             " set " +
                             "id = \'%s\'," +
@@ -62,9 +63,11 @@ public class CrudUserImpl implements Crud<User> {
     }
 
     @Override
+    @Transaction
     public void delete(final String table, final String username) {
-        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
-            connectionFactory.getStatement(connection).execute(
+        try {
+            Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD);
+            connectionFactory.getStatement(connection).executeUpdate(
                     String.format("delete from %s where username = \'%s\'", table, username));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -73,8 +76,10 @@ public class CrudUserImpl implements Crud<User> {
     }
 
     @Override
+    @Transaction
     public User read(String username, final String table) {
-        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
+        try {
+            Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD);
             ResultSet resultSet = connection.prepareStatement(
                     String.format(
                             "select * from %s where username = \'%s\'", table, username),
@@ -95,8 +100,10 @@ public class CrudUserImpl implements Crud<User> {
     }
 
     @Override
+    @Transaction
     public List<User> readAll(final String table) {
-        try (Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD)) {
+        try {
+            Connection connection = connectionFactory.getConnection(URL, USERNAME, PASSWORD);
             if (table != null && !table.equals("")) {
                 ResultSet resultSet = connectionFactory.getStatement(connection)
                         .executeQuery(String.format("select * from %s", table));
@@ -118,5 +125,11 @@ public class CrudUserImpl implements Crud<User> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void rollback() throws SQLException {
+        ConnectionFactory.getInstance().getConnection(URL, USERNAME, PASSWORD).rollback();
+        System.out.println("Changes has been canceled");
     }
 }

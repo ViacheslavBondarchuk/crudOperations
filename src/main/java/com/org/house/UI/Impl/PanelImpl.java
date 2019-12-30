@@ -13,6 +13,8 @@ public class PanelImpl extends PanelAbstract {
     private ComboBoxImpl comboBox = ComboBoxImpl.getInstance();
     private static TextFieldInpl dataField = new TextFieldInpl(10, 85, 360, 25);
     private static TextFieldInpl usernameField = new TextFieldInpl(10, 140, 360, 25);
+    private ButtonImpl btnCommit = new ButtonImpl("Commit", 100, 25, 280, 180, listener);
+    private ButtonImpl btnRollback = new ButtonImpl("Rollback", 100, 25, 10, 180, listener);
 
     public static TextFieldInpl getDataField() {
         return dataField;
@@ -34,6 +36,8 @@ public class PanelImpl extends PanelAbstract {
 
         add(new ButtonImpl("Execute", 100, 25, 10, 220, listener));
         add(new ButtonImpl("Exit", 100, 25, 280, 220, listener));
+        add(btnCommit);
+        add(btnRollback);
 
     }
 }

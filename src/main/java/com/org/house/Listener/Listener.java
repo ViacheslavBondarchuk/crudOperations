@@ -6,10 +6,15 @@ import com.org.house.UI.Impl.TextFieldInpl;
 import com.org.house.dao.impl.CrudUserImpl;
 import com.org.house.model.User;
 import com.org.house.service.UserService;
+import com.org.house.utils.ConnectionFactory;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import static com.org.house.dao.Crud.DataBaseConst.*;
 
 /***
  *author : viacheslav
@@ -80,6 +85,22 @@ public class Listener implements ActionListener {
                         });
                         showMessage(stringBuffer, "All users");
                         break;
+                }
+                break;
+            case "Commit":
+                try {
+                    Connection connection = ConnectionFactory.getInstance().getConnection(URL, USERNAME, PASSWORD);
+                    if (connection != null) connection.commit();
+                    System.out.println("------------------------Changes has been applied--------------------------");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "Rollback":
+                try {
+                    userService.rollback();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
                 break;
             case "Exit":

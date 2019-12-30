@@ -1,8 +1,10 @@
 package com.org.house.service;
 
+import com.org.house.annotation.Transaction;
 import com.org.house.dao.impl.CrudUserImpl;
 import com.org.house.model.User;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /***
@@ -26,6 +28,7 @@ public class UserService extends AbstractService<User, CrudUserImpl> {
     }
 
     @Override
+    @Transaction
     public void updateByUsername(User user, String table, String username) {
         super.updateByUsername(user, table, username);
     }
@@ -38,5 +41,10 @@ public class UserService extends AbstractService<User, CrudUserImpl> {
     @Override
     public List<User> getAll(String table) {
         return super.getAll(table);
+    }
+
+    @Override
+    public void rollback() throws SQLException {
+        super.rollback();
     }
 }
