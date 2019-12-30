@@ -27,22 +27,25 @@ public class TransactionImpl {
         Reflections reflections = new Reflections("com.org.house.service");
         Set<Class<? extends AbstractService>> objects = reflections.getSubTypesOf(AbstractService.class);
         for (Class clazz : objects) {
+            if (!commit) return;
             for (Method method : clazz.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(Transaction.class)) {
-                    try {
-                        if (commit) {
+                    Transaction transaction = method.getAnnotation(Transaction.class);
+                    if (transaction.enable()) {
+                        try {
                             commit = false;
                             Connection connection = ConnectionFactory.getInstance().getConnection(URL, USERNAME, PASSWORD);
                             if (connection != null) {
                                 connection.setAutoCommit(false);
                                 System.out.println("----------------Autocommit turn off--------------------");
                             }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
                     }
                 }
             }
         }
+
     }
 }

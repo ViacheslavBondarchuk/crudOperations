@@ -90,8 +90,10 @@ public class Listener implements ActionListener {
             case "Commit":
                 try {
                     Connection connection = ConnectionFactory.getInstance().getConnection(URL, USERNAME, PASSWORD);
-                    if (connection != null) connection.commit();
-                    System.out.println("------------------------Changes has been applied--------------------------");
+                    if (connection != null) {
+                        connection.commit();
+                        System.out.println("------------------------Changes has been applied--------------------------");
+                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
